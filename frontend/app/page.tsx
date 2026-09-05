@@ -95,14 +95,14 @@ export default function Home() {
       <div className="max-w-3xl space-y-6 text-center my-auto py-12">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-950/80 border border-indigo-800/50 text-indigo-300 font-semibold tracking-wide text-xs">
           <GraduationCap className="w-4 h-4 text-indigo-400" />
-          <span>Module 3: Document Ingestion & Processing Active</span>
+          <span>Modules 1–7 Active • Complete AI Study Suite</span>
         </div>
         <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
           AI Study Buddy
         </h1>
         <p className="text-lg text-slate-300">
           Context-aware AI companion grounded in your course materials with RAG retrieval, 
-          adaptive study plans, and automatic quiz generation.
+          AI summaries, quiz generation, and digital flashcards.
         </p>
 
         <div className="flex justify-center gap-4 pt-4">
@@ -144,17 +144,17 @@ export default function Home() {
           <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm">
             <Bot className="w-8 h-8 text-indigo-400 mb-3" />
             <h3 className="font-bold text-white mb-1">Grounded RAG Chat</h3>
-            <p className="text-xs text-slate-400">Contextual Q&A using Gemini 3.6 Flash vector search over uploaded PDFs.</p>
+            <p className="text-xs text-slate-400">Contextual Q&A using Gemini vector search over uploaded study materials.</p>
           </div>
           <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm">
             <BrainCircuit className="w-8 h-8 text-purple-400 mb-3" />
-            <h3 className="font-bold text-white mb-1">Adaptive Learning</h3>
-            <p className="text-xs text-slate-400">Mastery tracking, weak topic identification, and automated flashcards.</p>
+            <h3 className="font-bold text-white mb-1">AI Quizzes & Summaries</h3>
+            <p className="text-xs text-slate-400">Generate custom 5-question quizzes with explanations and key topic summaries.</p>
           </div>
           <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm">
             <BookOpen className="w-8 h-8 text-emerald-400 mb-3" />
-            <h3 className="font-bold text-white mb-1">Study Planner</h3>
-            <p className="text-xs text-slate-400">Scheduled study tasks customized to target exam dates and daily hours.</p>
+            <h3 className="font-bold text-white mb-1">Digital Flashcards</h3>
+            <p className="text-xs text-slate-400">Extract key study concepts into interactive flashcard decks with mastery review.</p>
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full text-center py-4 text-xs text-slate-500 flex justify-center items-center gap-2">
         <ShieldCheck className="w-4 h-4 text-emerald-500" />
-        <span>Module 3 Completed • Document Processing & Vector Index Active</span>
+        <span>Modules 1–7 Verified • Production Ready</span>
       </footer>
     </main>
   );
