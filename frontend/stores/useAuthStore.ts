@@ -58,6 +58,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   initializeAuth: () => {
+    if (isDevAuthBypass) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", DEMO_TEST_TOKEN);
+        localStorage.setItem("user", JSON.stringify(DEMO_TEST_USER));
+      }
+      set({
+        user: DEMO_TEST_USER,
+        token: DEMO_TEST_TOKEN,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      return;
+    }
+
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
@@ -73,15 +87,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     }
 
-    if (isDevAuthBypass) {
-      set({
-        user: DEMO_TEST_USER,
-        token: DEMO_TEST_TOKEN,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } else {
-      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-    }
+    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
   },
 }));

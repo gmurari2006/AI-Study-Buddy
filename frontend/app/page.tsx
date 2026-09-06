@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
   GraduationCap,
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
   const { user, isAuthenticated, initializeAuth } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
@@ -32,7 +34,10 @@ export default function Home() {
 
   useEffect(() => {
     initializeAuth();
-  }, [initializeAuth]);
+    if (isDevAuthBypass) {
+      router.push("/documents");
+    }
+  }, [initializeAuth, isDevAuthBypass, router]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white flex flex-col font-sans">
