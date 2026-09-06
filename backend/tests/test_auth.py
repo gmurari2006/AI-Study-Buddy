@@ -149,26 +149,64 @@ async def test_dev_auth_bypass_disabled_rejects_demo_token(client: AsyncClient, 
 
 
 @pytest.mark.asyncio
-async def test_dev_auth_bypass_enabled_creates_and_returns_demo_user(
+async def test_dev_auth_bypass_missing_demo_student_creates_user(
     client: AsyncClient, monkeypatch: pytest.MonkeyPatch
 ):
-    """Demo token creates and returns Demo Student user when DEV_AUTH_BYPASS is True."""
+    """Demo token creates the Demo Student user with a real database UUID when missing and DEV_AUTH_BYPASS is True."""
     monkeypatch.setattr(settings, "DEV_AUTH_BYPASS", True)
     headers = {"Authorization": "Bearer dev-test-token-bypass"}
 
-    # First call creates the demo user
+    response = await client.get("/api/v1/users/me", headers=headers)
+    assert response.status_code == 200
+    user = response.json()
+    assert user["email"] == "demo.student@university.edu"
+    assert user["full_name"] == "Demo Student"
+    assert user["academic_year"] == "3rd Year CSE"
+    assert "id" in user and user["id"]
+
+
+@pytest.mark.asyncio
+async def test_dev_auth_bypass_existing_demo_student_returns_existing_uuid(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+):
+    """Demo token returns existing Demo Student user's real UUID when already present."""
+    monkeypatch.setattr(settings, "DEV_AUTH_BYPASS", True)
+
+    reg_payload = {
+        "email": "demo.student@university.edu",
+        "password": "Password123!",
+        "full_name": "Demo Student",
+        "academic_year": "3rd Year CSE",
+    }
+    reg_res = await client.post("/api/v1/auth/register", json=reg_payload)
+    assert reg_res.status_code == 201
+    registered_id = reg_res.json()["user"]["id"]
+
+    headers = {"Authorization": "Bearer dev-test-token-bypass"}
+    response = await client.get("/api/v1/users/me", headers=headers)
+    assert response.status_code == 200
+    user = response.json()
+    assert user["id"] == registered_id
+    assert user["email"] == "demo.student@university.edu"
+
+
+@pytest.mark.asyncio
+async def test_dev_auth_bypass_repeated_requests_do_not_duplicate(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+):
+    """Repeated demo-token requests return the same user without creating duplicates."""
+    monkeypatch.setattr(settings, "DEV_AUTH_BYPASS", True)
+    headers = {"Authorization": "Bearer dev-test-token-bypass"}
+
     res1 = await client.get("/api/v1/users/me", headers=headers)
     assert res1.status_code == 200
-    user1 = res1.json()
-    assert user1["id"] == "00000000-0000-0000-0000-000000000000"
-    assert user1["email"] == "demo.student@university.edu"
-    assert user1["full_name"] == "Demo Student"
+    user1_id = res1.json()["id"]
 
-    # Second call returns existing demo user
     res2 = await client.get("/api/v1/users/me", headers=headers)
     assert res2.status_code == 200
-    user2 = res2.json()
-    assert user2["id"] == "00000000-0000-0000-0000-000000000000"
+    user2_id = res2.json()["id"]
+
+    assert user1_id == user2_id
 
 
 @pytest.mark.asyncio
@@ -190,4 +228,5 @@ async def test_dev_auth_bypass_normal_jwt_still_works(
     response = await client.get("/api/v1/users/me", headers=headers)
     assert response.status_code == 200
     assert response.json()["email"] == "normal.jwt@university.edu"
+
 
