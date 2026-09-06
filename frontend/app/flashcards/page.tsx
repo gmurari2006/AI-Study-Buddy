@@ -54,8 +54,9 @@ export default function FlashcardsPage() {
   }, [initializeAuth]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      const token = localStorage.getItem("access_token");
+    const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+    if (!isAuthenticated && !isDevAuthBypass) {
+      const token = localStorage.getItem("token");
       if (!token) {
         router.push("/login");
       }

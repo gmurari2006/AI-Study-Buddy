@@ -71,7 +71,7 @@ export default function SummariesPage() {
         fetchMaterials(data[0].id);
       }
     } catch (err: any) {
-      if (err.response?.status === 401) {
+      if (err.response?.status === 401 && process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS !== "true") {
         router.push("/login");
       } else {
         setError("Failed to load subjects. Please check your connection.");

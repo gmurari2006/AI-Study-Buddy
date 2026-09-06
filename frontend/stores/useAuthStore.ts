@@ -1,6 +1,17 @@
 import { create } from "zustand";
 import { UserProfile } from "@/types";
 
+const DEMO_TEST_USER: UserProfile = {
+  id: "00000000-0000-0000-0000-000000000000",
+  email: "demo.student@university.edu",
+  full_name: "Demo Student",
+  academic_year: "3rd Year CSE",
+  created_at: new Date().toISOString(),
+};
+const DEMO_TEST_TOKEN = "dev-test-token-bypass";
+
+const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+
 interface AuthState {
   user: UserProfile | null;
   token: string | null;
@@ -13,10 +24,10 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  isLoading: true,
+  user: isDevAuthBypass ? DEMO_TEST_USER : null,
+  token: isDevAuthBypass ? DEMO_TEST_TOKEN : null,
+  isAuthenticated: isDevAuthBypass,
+  isLoading: !isDevAuthBypass,
 
   setAuth: (user, token) => {
     if (typeof window !== "undefined") {
@@ -38,7 +49,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     }
-    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+    set({
+      user: isDevAuthBypass ? DEMO_TEST_USER : null,
+      token: isDevAuthBypass ? DEMO_TEST_TOKEN : null,
+      isAuthenticated: isDevAuthBypass,
+      isLoading: false,
+    });
   },
 
   initializeAuth: () => {
@@ -56,6 +72,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
       }
     }
-    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+
+    if (isDevAuthBypass) {
+      set({
+        user: DEMO_TEST_USER,
+        token: DEMO_TEST_TOKEN,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } else {
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+    }
   },
 }));

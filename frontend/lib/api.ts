@@ -27,7 +27,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
+    const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+    if (error.response?.status === 401 && typeof window !== "undefined" && !isDevAuthBypass) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     }

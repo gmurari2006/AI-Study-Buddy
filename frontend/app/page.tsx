@@ -27,6 +27,8 @@ import {
 export default function Home() {
   const { user, isAuthenticated, initializeAuth } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+  const effectiveAuth = isAuthenticated || isDevAuthBypass;
 
   useEffect(() => {
     initializeAuth();
@@ -69,7 +71,7 @@ export default function Home() {
 
           {/* Right: Auth Action Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated ? (
+            {effectiveAuth ? (
               <div className="flex items-center gap-2.5">
                 <Link
                   href="/documents"
@@ -162,7 +164,7 @@ export default function Home() {
               AI Tools
             </a>
             <hr className="border-slate-200" />
-            {isAuthenticated ? (
+            {effectiveAuth ? (
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link
                   href="/documents"
@@ -242,7 +244,7 @@ export default function Home() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                {isAuthenticated ? (
+                {effectiveAuth ? (
                   <Link
                     href="/documents"
                     className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
@@ -660,7 +662,7 @@ export default function Home() {
             </p>
             <div className="pt-2">
               <Link
-                href={isAuthenticated ? "/documents" : "/register"}
+                href={effectiveAuth ? "/documents" : "/register"}
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
                 <span>Get Started Now</span>

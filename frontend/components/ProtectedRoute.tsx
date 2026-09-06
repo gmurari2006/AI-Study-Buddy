@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Loader2 } from "lucide-react";
 
+const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
@@ -14,12 +16,12 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }, [initializeAuth]);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isDevAuthBypass && !isLoading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading) {
+  if (isLoading && !isDevAuthBypass) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-indigo-400">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -27,7 +29,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isDevAuthBypass && !isAuthenticated) {
     return null;
   }
 
