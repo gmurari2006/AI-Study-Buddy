@@ -16,6 +16,12 @@ class UserLoginRequest(BaseModel):
     password: str
 
 
+class UserGoogleAuthRequest(BaseModel):
+    email: EmailStr
+    full_name: str | None = None
+    supabase_uid: str | None = None
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

@@ -7,6 +7,7 @@ from app.models.user import UserProfile
 from app.schemas.auth import (
     MessageResponse,
     TokenResponse,
+    UserGoogleAuthRequest,
     UserLoginRequest,
     UserRegisterRequest,
 )
@@ -23,6 +24,11 @@ async def register(request: UserRegisterRequest, db: AsyncSession = Depends(get_
 @router.post("/login", response_model=TokenResponse)
 async def login(request: UserLoginRequest, db: AsyncSession = Depends(get_db)):
     return await AuthService.authenticate_user(db, request)
+
+
+@router.post("/google", response_model=TokenResponse)
+async def google_auth(request: UserGoogleAuthRequest, db: AsyncSession = Depends(get_db)):
+    return await AuthService.google_auth(db, request)
 
 
 @router.post("/logout", response_model=MessageResponse)

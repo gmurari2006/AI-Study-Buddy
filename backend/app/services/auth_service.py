@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import UserProfile
-from app.schemas.auth import TokenResponse, UserLoginRequest, UserRegisterRequest
+from app.schemas.auth import TokenResponse, UserGoogleAuthRequest, UserLoginRequest, UserRegisterRequest
 from app.schemas.user import UserProfileUpdateRequest
 
 
@@ -46,6 +46,26 @@ class AuthService:
                 detail="Invalid email or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
+        access_token = create_access_token(subject=user.id)
+        return TokenResponse(access_token=access_token, token_type="bearer", user=user)
+
+    @staticmethod
+    async def google_auth(db: AsyncSession, request: UserGoogleAuthRequest) -> TokenResponse:
+        email_clean = request.email.lower()
+        result = await db.execute(select(UserProfile).where(UserProfile.email == email_clean))
+        user = result.scalars().first()
+
+        if not user:
+            user = UserProfile(
+                email=email_clean,
+                full_name=request.full_name or "Google User",
+                academic_year="3rd Year CSE",
+                password_hash="",
+            )
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
 
         access_token = create_access_token(subject=user.id)
         return TokenResponse(access_token=access_token, token_type="bearer", user=user)
