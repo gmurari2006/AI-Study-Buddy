@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     ENVIRONMENT: str = "development"
+    DEV_AUTH_BYPASS: bool = False
     LOG_LEVEL: str = "INFO"
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
 

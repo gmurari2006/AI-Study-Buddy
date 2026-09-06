@@ -136,3 +136,58 @@ async def test_logout_unauthenticated_fails(client: AsyncClient):
     """M1-TEST-07a: Unauthenticated call to logout endpoint returns 401 Unauthorized."""
     response = await client.post("/api/v1/auth/logout")
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_dev_auth_bypass_disabled_rejects_demo_token(client: AsyncClient, monkeypatch: pytest.MonkeyPatch):
+    """Demo token is rejected when DEV_AUTH_BYPASS is False."""
+    monkeypatch.setattr(settings, "DEV_AUTH_BYPASS", False)
+    headers = {"Authorization": "Bearer dev-test-token-bypass"}
+    response = await client.get("/api/v1/users/me", headers=headers)
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Could not validate credentials"
+
+
+@pytest.mark.asyncio
+async def test_dev_auth_bypass_enabled_creates_and_returns_demo_user(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+):
+    """Demo token creates and returns Demo Student user when DEV_AUTH_BYPASS is True."""
+    monkeypatch.setattr(settings, "DEV_AUTH_BYPASS", True)
+    headers = {"Authorization": "Bearer dev-test-token-bypass"}
+
+    # First call creates the demo user
+    res1 = await client.get("/api/v1/users/me", headers=headers)
+    assert res1.status_code == 200
+    user1 = res1.json()
+    assert user1["id"] == "00000000-0000-0000-0000-000000000000"
+    assert user1["email"] == "demo.student@university.edu"
+    assert user1["full_name"] == "Demo Student"
+
+    # Second call returns existing demo user
+    res2 = await client.get("/api/v1/users/me", headers=headers)
+    assert res2.status_code == 200
+    user2 = res2.json()
+    assert user2["id"] == "00000000-0000-0000-0000-000000000000"
+
+
+@pytest.mark.asyncio
+async def test_dev_auth_bypass_normal_jwt_still_works(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+):
+    """Normal JWT authentication works even when DEV_AUTH_BYPASS is True."""
+    monkeypatch.setattr(settings, "DEV_AUTH_BYPASS", True)
+
+    reg_payload = {
+        "email": "normal.jwt@university.edu",
+        "password": "Password123!",
+        "full_name": "Normal User",
+    }
+    reg_res = await client.post("/api/v1/auth/register", json=reg_payload)
+    token = reg_res.json()["access_token"]
+
+    headers = {"Authorization": f"Bearer {token}"}
+    response = await client.get("/api/v1/users/me", headers=headers)
+    assert response.status_code == 200
+    assert response.json()["email"] == "normal.jwt@university.edu"
+

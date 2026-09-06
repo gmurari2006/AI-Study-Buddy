@@ -6,6 +6,21 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
 
+import uuid
+
+# Python 3.14 compatibility fix for SQLite in-memory test database UUID integer conversion
+_orig_uuid_init = uuid.UUID.__init__
+
+
+def _safe_uuid_init(self, hex=None, *args, **kwargs):
+    if isinstance(hex, int) and "int" not in kwargs:
+        kwargs["int"] = hex
+        hex = None
+    _orig_uuid_init(self, hex, *args, **kwargs)
+
+
+uuid.UUID.__init__ = _safe_uuid_init
+
 # In-memory SQLite for fast testing
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
